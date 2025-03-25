@@ -766,3 +766,4 @@ Received Import Request.
 Start importing Assets/groundLight/Materials/Mat_ModelRipple.mat using Guid(f8db347d5dbb12b49bef93a57bd06eee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a965265f6083de05199479c6e5e10949') in 0.068128 seconds 
   Import took 0.072462 seconds .
 
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file
