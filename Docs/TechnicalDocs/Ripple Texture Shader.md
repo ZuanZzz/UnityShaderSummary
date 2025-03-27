@@ -2,7 +2,7 @@
 
 # Effect
 
-![image.png](image.png)
+![image.png](../Images/image.png)
 
 # Basic version implementation
 
@@ -148,7 +148,7 @@ so there are some key points.
 
 ## Implementation Processing
 
-### basic structure of Unityshader
+### basic structure of Unityshader（UV）
 
 - Codes
     
@@ -347,6 +347,67 @@ so there are some key points.
 - Error
     - line5: “white” spelling error
     - …(didn`t solved)
+
+### Advanced structure of Unityshader(world space)
+
+- Codes
+
+### Key Codes
+
+- use world space to move the texture
+    - use `mul(unity_ObjectToWorld, v.vertex).xyz` to transfer the objectSpace to the worldSpace. Because if you want it to looks like wave to the same directions, you shouldn`t use the UV direction, it seems like messy on the model
+    
+    ```csharp
+    v2f vert(appdata v)
+    {
+        v2f o;
+        o.pos = UnityObjectToClipPos(v.vertex);   // vert.pos -> clip space
+        o.uv = TRANSFORM_TEX(v.uv, _MainTex);    // uv -> clip space
+        o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz; // object space -> world space
+        return o;
+    }
+    ```
+    
+- rotate the texture and you can chose the axis
+    
+    ```csharp
+    // calculate the rotation matrix
+    float rad = radians(_Rotation); // angle to radian
+    float cosTheta = cos(rad);
+    float sinTheta = sin(rad);
+    
+    float3x3 rotationMatrix = float3x3(
+        cosTheta + _RippleAxis.x * _RippleAxis.x * (1 - cosTheta),
+        _RippleAxis.x * _RippleAxis.y * (1 - cosTheta) - _RippleAxis.z * sinTheta,
+        _RippleAxis.x * _RippleAxis.z * (1 - cosTheta) + _RippleAxis.y * sinTheta,
+    
+        _RippleAxis.y * _RippleAxis.x * (1 - cosTheta) + _RippleAxis.z * sinTheta,
+        cosTheta + _RippleAxis.y * _RippleAxis.y * (1 - cosTheta),
+        _RippleAxis.y * _RippleAxis.z * (1 - cosTheta) - _RippleAxis.x * sinTheta,
+    
+        _RippleAxis.z * _RippleAxis.x * (1 - cosTheta) - _RippleAxis.y * sinTheta,
+        _RippleAxis.z * _RippleAxis.y * (1 - cosTheta) + _RippleAxis.x * sinTheta,
+        cosTheta + _RippleAxis.z * _RippleAxis.z * (1 - cosTheta)
+    );
+    
+    ripplePos = mul(rotationMatrix, ripplePos); // Application Matrix
+    
+    float2 rippleUV = ripplePos.xz; // use the current x and z as UV
+    ```
+    
+- the way of wave
+    
+    除了使用 `sin`，可以使用其他函数来模拟波动效果：
+    
+    1. **`cos`**：类似 `sin`，但相位不同。
+    2. **噪声函数**：例如使用伪随机值或 Perlin Noise，可以让波动更自然。
+    3. **分段线性函数**：通过线性递增或递减的函数，模拟水流冲击感。
+    4. **三角波/锯齿波**：周期性更分明，适合直线波动效果。
+    5. **自定义时间函数**：如线性增量或基于 `_Time` 的混合。
+
+### optimaize
+
+- I should stretch the UV in the blender 重新, because it looks like there are some weird stretch on model
 
 ## QA
 
